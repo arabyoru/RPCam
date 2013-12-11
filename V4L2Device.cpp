@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 
 #include "V4L2Device.h"
+#include "RPCamSockManager.h"
 #include "RPCamFileManager.h"
 
 RPCamFileManager theFileMgr;
@@ -326,20 +327,23 @@ void V4L2Device::ProcessImage(const void *pFrame, size_t nLength)
 	{
 		memset(&stJpgInfo, 0x00, sizeof(stJpgInfo));
 		write(mFdJpgFile, pFrame, nLength);
-
-		stJpgInfo.pCamImagePtr = malloc(nLength);
-		if(stJpgInfo.pCamImagePtr)
+		if(RPCamSockManager::GetClientCnt()>0)
 		{
-			memcpy(stJpgInfo.pCamImagePtr, pFrame, nLength);
-			strncpy(stJpgInfo.szFileName, mszCurFileName, sizeof(stJpgInfo.szFileName));
-			stJpgInfo.nCamImageSize = nLength;			
-			stJpgInfo.bIsEvent = false;
-			stJpgInfo.bIsTrsf = false;
-			stJpgInfo.bIsSave = false;
-			stJpgInfo.tCreateTime = time(0);
+			DBGINT(RPCamSockManager::GetClientCnt());
+			stJpgInfo.pCamImagePtr = malloc(nLength);
+			if(stJpgInfo.pCamImagePtr)
+			{
+				memcpy(stJpgInfo.pCamImagePtr, pFrame, nLength);
+				strncpy(stJpgInfo.szFileName, mszCurFileName, sizeof(stJpgInfo.szFileName));
+				stJpgInfo.nCamImageSize = nLength;
+				stJpgInfo.bIsEvent = false;
+				stJpgInfo.bIsTrsf = false;
+				stJpgInfo.bIsSave = false;
+				stJpgInfo.tCreateTime = time(0);
 
-			theFileMgr.PushData(stJpgInfo);
-		}
+				theFileMgr.PushData(stJpgInfo);
+			}
+		}		
 	}
 }
 

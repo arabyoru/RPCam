@@ -31,6 +31,8 @@ public:
 
 	void* ThreadRun(void *pArg);
 
+	inline static int GetClientCnt(void) { return mClientCnt; };
+
 public:
 	void* 				mpArg;
 	bool 				mbRun;
@@ -45,5 +47,7 @@ protected:
 	
 	pthread_t 			mSockThread;
 	pthread_attr_t 		mSockThreadAttr;
+
+	static int mClientCnt;
 
 };

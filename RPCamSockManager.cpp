@@ -6,6 +6,8 @@
 
 extern RPCamFileManager theFileMgr;
 
+int RPCamSockManager::mClientCnt;
+
 void* SockThreadFunc(void *pArg)
 {
 	void* pRet = NULL;
@@ -31,7 +33,7 @@ bool RPCamSockManager::Init(void)
 
 	memset(&mRPSockAddr, 0x00, sizeof(mRPSockAddr));
 	memset(&mClntSockAddr, 0x00, sizeof(mClntSockAddr));
-
+	mClientCnt = 0;
 	return true;
 }
 
@@ -64,7 +66,6 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 {
 	void *pRet = NULL;
 	int option = 1; 
-	char test[] = "Hello\n";
 
 	// Open server socket
 	mRPSock = socket(PF_INET, SOCK_STREAM, 0);
@@ -103,15 +104,17 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 			perror("Listen : ");
 			fprintf(stderr, "Socket Listen Failure\n" );
 		}
-		mClntAddrSize = sizeof(mClntSockAddr);
-
+		mClntAddrSize = sizeof(mClntSockAddr);		
 		mClntSock= accept(mRPSock, (struct sockaddr *)&mClntSockAddr, &mClntAddrSize);
 
+		if(mClntSock>=0) { mClientCnt++; }
 		// Write Client
-		theFileMgr.PopFrontData(stJpgInfo);
-		write(mClntSock, &stJpgInfo, sizeof(stJpgInfo)+1);
-		free(stJpgInfo.pCamImagePtr);
-		DBGTRC;
+		if(theFileMgr.PopFrontData(stJpgInfo))
+		{
+			write(mClntSock, &stJpgInfo, sizeof(stJpgInfo)+1);
+			free(stJpgInfo.pCamImagePtr);
+			DBGTRC;
+		}		
 		sleep(1);
 	}
 

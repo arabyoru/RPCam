@@ -4,6 +4,9 @@
 
 [dgkim5212@gmail.com](dgkim5212@gmail.com)
 
+## License
+This Program Follow the GPLv2 license
+
 ## Version
 This documatation is for the unreleased development branch. The current stable version is not yet.
 
