@@ -103,7 +103,7 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 			perror("Listen : ");
 			fprintf(stderr, "Socket Listen Failure\n" );
 		}
-
+		DBGTRC;
 		mClntAddrSize = sizeof(mClntSockAddr);
 
 		mClntSock= accept(mRPSock, (struct sockaddr *)&mClntSockAddr, &mClntAddrSize);
