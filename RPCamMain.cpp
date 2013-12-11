@@ -84,7 +84,7 @@ void* RPCamMain::ThreadRun(void *pArg)
 		mbRun = false; 
 		return NULL;	
 	}
-	// Sock Manager 실행
+	// Start Socket Manager 
 	if(theRPCamSockMgr.Init())
 	{
 		if(!theRPCamSockMgr.StartRPCamSockManager())

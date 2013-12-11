@@ -7,10 +7,10 @@
 #include <time.h>
 #include <pthread.h> 
 
+#include <arpa/inet.h> 
 #include <sys/types.h> 
 #include <sys/socket.h> 
 #include <netinet/in.h> 
-#include <arpa/inet.h> 
 
 #include "TypeDef.h"
 
@@ -36,6 +36,13 @@ public:
 	bool 				mbRun;
 protected:
 
+	int mRPSock;
+	int mClntSock;
+	socklen_t mClntAddrSize;
+
+	struct sockaddr_in mRPSockAddr;
+	struct sockaddr_in mClntSockAddr;
+	
 	pthread_t 			mSockThread;
 	pthread_attr_t 		mSockThreadAttr;
 

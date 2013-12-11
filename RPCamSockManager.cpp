@@ -1,4 +1,5 @@
 
+#include <errno.h>
 
 #include "RPCamSockManager.h"
 
@@ -25,12 +26,16 @@ RPCamSockManager::~RPCamSockManager(void)
 
 bool RPCamSockManager::Init(void)
 {
+
+	memset(&mRPSockAddr, 0x00, sizeof(mRPSockAddr));
+	memset(&mClntSockAddr, 0x00, sizeof(mClntSockAddr));
+
 	return true;
 }
 
 void RPCamSockManager::Free(void)
 {
-
+	close(mRPSock);
 }
 
 bool RPCamSockManager::StartRPCamSockManager(void)
@@ -56,13 +61,59 @@ void RPCamSockManager::StopRPCamSockManager(void)
 void* RPCamSockManager::ThreadRun(void *pArg)
 {
 	void *pRet = NULL;
+	int option = 1; 
+	char test[] = "Hello\n";
 
+	// Open server socket
+	mRPSock = socket(PF_INET, SOCK_STREAM, 0);
+	if(mRPSock == -1)
+	{
+		fprintf(stderr, "Socket Init Failure\n" );
+		perror("Sock : ");
+		return NULL;
+	}
+
+	// SO_REUSEADDR = true
+	if(setsockopt(mRPSock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option))<0)
+	{
+		perror("Sock Opt : ");
+		return NULL; 
+	}
+
+	mRPSockAddr.sin_family = AF_INET;
+	mRPSockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	//mRPSockAddr.sin_addr.s_addr = inet_addr ("100.100.105.99");
+	mRPSockAddr.sin_port = htons(DFT_SERVER_PORT);
+
+	if(bind(mRPSock, (struct sockaddr *)&mRPSockAddr, sizeof(mRPSockAddr)) == -1)
+	{
+		fprintf(stderr, "Socket Bind Failure(%d)\n", errno );
+		perror("Bind Error : ");
+		close(mRPSock);
+		return NULL;	
+	}
+	
 	while(true)
 	{
 		DBGTRC;
+		DBGINT(mRPSock);
+		// Listen Client .. 
+		if(listen(mRPSock, 5) == -1)
+		{
+			perror("Listen : ");
+			fprintf(stderr, "Socket Listen Failure\n" );
+		}
+
+		mClntAddrSize = sizeof(mClntSockAddr);
+
+		mClntSock= accept(mRPSock, (struct sockaddr *)&mClntSockAddr, &mClntAddrSize);
+
+		// Write Client
+		write(mClntSock, test, sizeof(test));
 		sleep(1);
-		if(!mbRun){DBGTRC; break;}
 	}
+
+	close(mClntSock);
 
 	return pRet;
 }

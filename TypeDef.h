@@ -14,6 +14,8 @@
 
 // Value Define
 #define DFT_DEV_NAME			("/dev/video0")
+#define DFT_SERVER_PORT			5212
+
 #define DEV_NAME_LEN 			256
 #define FILE_NAME_LEN			256
 #define FILE_PATH_LEN			256
