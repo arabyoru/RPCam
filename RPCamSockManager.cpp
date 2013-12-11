@@ -2,7 +2,9 @@
 #include <errno.h>
 
 #include "RPCamSockManager.h"
+#include "RPCamFileManager.h"
 
+extern RPCamFileManager theFileMgr;
 
 void* SockThreadFunc(void *pArg)
 {
@@ -92,24 +94,24 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 		close(mRPSock);
 		return NULL;	
 	}
-	
+	JpgFileInfo stJpgInfo;
 	while(true)
 	{
-		DBGTRC;
-		DBGINT(mRPSock);
 		// Listen Client .. 
 		if(listen(mRPSock, 5) == -1)
 		{
 			perror("Listen : ");
 			fprintf(stderr, "Socket Listen Failure\n" );
 		}
-		DBGTRC;
 		mClntAddrSize = sizeof(mClntSockAddr);
 
 		mClntSock= accept(mRPSock, (struct sockaddr *)&mClntSockAddr, &mClntAddrSize);
 
 		// Write Client
-		write(mClntSock, test, sizeof(test));
+		theFileMgr.PopFrontData(stJpgInfo);
+		write(mClntSock, &stJpgInfo, sizeof(stJpgInfo)+1);
+		free(stJpgInfo.pCamImagePtr);
+		DBGTRC;
 		sleep(1);
 	}
 

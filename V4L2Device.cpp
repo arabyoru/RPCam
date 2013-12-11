@@ -7,7 +7,9 @@
 #include <sys/ioctl.h>
 
 #include "V4L2Device.h"
+#include "RPCamFileManager.h"
 
+RPCamFileManager theFileMgr;
 
 V4L2Device::V4L2Device(void)
 {
@@ -193,6 +195,12 @@ bool V4L2Device::InitDevice(void)
 		case IO_METHOD_USERPTR: /* TOOD */ break;
 	}
 
+	if(!theFileMgr.Init())
+	{
+		fprintf(stderr, "File Manager Init Failure\n");
+		goto ERR_RETURN;	
+	} 
+
 	return true;
 
 ERR_RETURN:
@@ -207,6 +215,7 @@ void V4L2Device::CloseDevice(void)
 		return ;
 	}
 	mFdDevice = -1;
+	theFileMgr.Free();
 }
 
 void V4L2Device::FreeDevice(void)
@@ -312,9 +321,25 @@ ERR_EAGAIN:
 
 void V4L2Device::ProcessImage(const void *pFrame, size_t nLength)
 {
+	JpgFileInfo stJpgInfo;
 	if(pFrame)
 	{
+		memset(&stJpgInfo, 0x00, sizeof(stJpgInfo));
 		write(mFdJpgFile, pFrame, nLength);
+
+		stJpgInfo.pCamImagePtr = malloc(nLength);
+		if(stJpgInfo.pCamImagePtr)
+		{
+			memcpy(stJpgInfo.pCamImagePtr, pFrame, nLength);
+			strncpy(stJpgInfo.szFileName, mszCurFileName, sizeof(stJpgInfo.szFileName));
+			stJpgInfo.nCamImageSize = nLength;			
+			stJpgInfo.bIsEvent = false;
+			stJpgInfo.bIsTrsf = false;
+			stJpgInfo.bIsSave = false;
+			stJpgInfo.tCreateTime = time(0);
+
+			theFileMgr.PushData(stJpgInfo);
+		}
 	}
 }
 
@@ -373,22 +398,10 @@ void V4L2Device::MakeFileName(const char *szPrfx, unsigned int nIdx, char* szFil
 	struct tm stTm;
 
 	localtime_r(&nCurTime, &stTm);
-	#if 0
-	struct tm {
-	int tm_sec;   /* Seconds */
-	int tm_min;   /* Minutes */
-	int tm_hour;  /* Hour (0--23) */
-	int tm_mday;  /* Day of month (1--31) */
-	int tm_mon;   /* Month (0--11) */
-	int tm_year;  /* Year (calendar year minus 1900) */
-	int tm_wday;  /* Weekday (0--6; Sunday = 0) */
-	int tm_yday;  /* Day of year (0--365) */
-	int tm_isdst; /* 0 if daylight savings time is not in effect) */
-	};
-	#endif
-
 	snprintf(szFileName, FILE_NAME_LEN, "%s_%d%02d%02d_%02d%02d%02d_%d.jpg", 
 		szPrfx, stTm.tm_year+1900, stTm.tm_mon+1, stTm.tm_mday, stTm.tm_hour, stTm.tm_min, stTm.tm_sec, nIdx);
+
+	strncpy(mszCurFileName, szFileName, sizeof(mszCurFileName));
 
 }
 

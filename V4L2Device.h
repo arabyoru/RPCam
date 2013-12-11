@@ -47,6 +47,7 @@ private:
 private:
 	enum io_method meIoMethod;
 	char 		mszDevName[DEV_NAME_LEN];
+	char 		mszCurFileName[FILE_NAME_LEN];
 	int 		mFdDevice;
 	int 		mFdJpgFile;
 
