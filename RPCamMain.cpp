@@ -65,52 +65,52 @@ void RPCamMain::StopMain(void)
 }
 
 void* RPCamMain::ThreadRun(void *pArg)
-{
-	if(theV4L2Dev.OpenDevice(mnCnt))
-	{
-		if(theV4L2Dev.InitDevice())
-		{
-			theV4L2Dev.StartCapturing();
-			theV4L2Dev.MainProcessing();		
-		}
-		else
-		{
-			mbRun = false;
-			return NULL;	
-		} 
-	}
-	else
-	{
-		mbRun = false; 
-		return NULL;	
-	}
-	// Start Socket Manager 
+{	
 	if(theRPCamSockMgr.Init())
 	{
+		// Start Socket Manager Thread
 		if(!theRPCamSockMgr.StartRPCamSockManager())
 		{
 			fprintf(stderr, "RPCam Manger Start Failure.. \n");
-			goto LABEL_SOCKFREE;
+			theRPCamSockMgr.Free();
+			return NULL;
 		}
 	}
 	else 
 	{
 		fprintf(stderr, "RPCam Manger Init Failure.. \n");
-		goto LABEL_MAINFREE;
+		return NULL;
 	}
 
-#if 0	
+	// Device Open
+	if(theV4L2Dev.OpenDevice(mnCnt))
+	{
+		if(theV4L2Dev.InitDevice())
+		{
+			theV4L2Dev.StartCapturing();
+		}
+		else
+		{
+			mbRun = false;
+			return NULL;
+		} 
+	}
+	else
+	{
+		mbRun = false; 
+		return NULL;
+	}	
+
 	while(true)
 	{
+		theV4L2Dev.MainProcessing();
 		if(!mbRun) break;
 		sleep(1);
 	}
-#endif
 
-	theRPCamSockMgr.StopRPCamSockManager();
-LABEL_SOCKFREE:
 	theRPCamSockMgr.Free();
-LABEL_MAINFREE:
+	theRPCamSockMgr.StopRPCamSockManager();
+
 	theV4L2Dev.FreeDevice();
 	theV4L2Dev.CloseDevice();
 	mbRun = false;
