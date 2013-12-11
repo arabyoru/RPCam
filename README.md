@@ -24,11 +24,10 @@ Implementation of goals
  In development now..
 
 ## Development Environment
-Raspberry Pi 2.0 Board 
-Linux version 3.10.19
-gcc (Debian 4.6.3-14+rpi1) 4.6.3
-V4L2 Library
-
+####Raspberry Pi 2.0 Board 
+####Linux version 3.10.19
+####gcc (Debian 4.6.3-14+rpi1) 4.6.3
+####V4L2 Library
 ## Feature
 In order to use a camera device RPCam enable the operation must be preceded.
 Also to be installed V4L2(Video4Linux2)
