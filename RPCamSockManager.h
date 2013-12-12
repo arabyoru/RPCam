@@ -11,6 +11,9 @@
 #include <sys/types.h> 
 #include <sys/socket.h> 
 #include <netinet/in.h> 
+#include <arpa/inet.h>
+
+
 
 #include "TypeDef.h"
 
@@ -40,6 +43,9 @@ protected:
 
 	int mRPSock;
 	int mClntSock;
+	int mArrClntSocks[MAX_CLIENT_SIZE];
+	int mnClntNum;
+
 	socklen_t mClntAddrSize;
 
 	struct sockaddr_in mRPSockAddr;
@@ -47,6 +53,9 @@ protected:
 	
 	pthread_t 			mSockThread;
 	pthread_attr_t 		mSockThreadAttr;
+
+	pthread_t 			mClntThread;
+	pthread_attr_t 		mClntThreadAttr;	
 
 	static int mClientCnt;
 

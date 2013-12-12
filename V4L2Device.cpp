@@ -322,28 +322,49 @@ ERR_EAGAIN:
 
 void V4L2Device::ProcessImage(const void *pFrame, size_t nLength)
 {
-	JpgFileInfo stJpgInfo;
+	ST_JPGINFO_PACKET stJpgInfo;
+
+	memset(&stJpgInfo, 0x00, sizeof(stJpgInfo));
 	if(pFrame)
 	{
-		memset(&stJpgInfo, 0x00, sizeof(stJpgInfo));
-		write(mFdJpgFile, pFrame, nLength);
+
 		if(RPCamSockManager::GetClientCnt()>0)
 		{
-			DBGINT(RPCamSockManager::GetClientCnt());
-			stJpgInfo.pCamImagePtr = malloc(nLength);
-			if(stJpgInfo.pCamImagePtr)
-			{
-				memcpy(stJpgInfo.pCamImagePtr, pFrame, nLength);
-				strncpy(stJpgInfo.szFileName, mszCurFileName, sizeof(stJpgInfo.szFileName));
-				stJpgInfo.nCamImageSize = nLength;
-				stJpgInfo.bIsEvent = false;
-				stJpgInfo.bIsTrsf = false;
-				stJpgInfo.bIsSave = false;
-				stJpgInfo.tCreateTime = time(0);
+			DBGTRC;
+			stJpgInfo.stHeader.nFrom = 10;
+			stJpgInfo.stHeader.nTo = 20;
+			stJpgInfo.stHeader.tCreateTime = time(0);
+			//stJpgInfo.pBody = new char[nLength + 1];
 
-				theFileMgr.PushData(stJpgInfo);
-			}
-		}		
+			memset(stJpgInfo.pBody , 0x00, nLength);
+			memcpy(stJpgInfo.pBody, pFrame, nLength);
+			//write(mFdJpgFile, pFrame, nLength);
+			stJpgInfo.nLen = nLength;
+			theFileMgr.PushData(stJpgInfo);	
+		}	
+
+		
+		//write(mFdJpgFile, pFrame, nLength);
+		//
+		// memset(&stJpgInfo, 0x00, sizeof(stJpgInfo));
+		// if(RPCamSockManager::GetClientCnt()>0)
+		// {
+		// 	DBGINT(RPCamSockManager::GetClientCnt());
+		// 	//stJpgInfo.pCamImagePtr = malloc(nLength);
+		// 	if(stJpgInfo.pCamImagePtr)
+		// 	{
+		// 		DBGINT(nLength);
+		// 		memcpy(stJpgInfo.pCamImagePtr, pFrame, nLength);
+		// 		strncpy(stJpgInfo.szFileName, mszCurFileName, sizeof(stJpgInfo.szFileName));
+		// 		stJpgInfo.nCamImageSize = nLength;
+		// 		stJpgInfo.bIsEvent = false;
+		// 		stJpgInfo.bIsTrsf = false;
+		// 		stJpgInfo.bIsSave = false;
+		// 		stJpgInfo.tCreateTime = time(0);
+
+		// 		theFileMgr.PushData(stJpgInfo);
+		// 	}
+		// }		
 	}
 }
 
@@ -356,12 +377,12 @@ void V4L2Device::MainProcessing(void)
 	{
 		CLEARx0(szFileName);
 		MakeFileName("KDG", (mnFrameCnt-nCnt), szFileName);
-		mFdJpgFile = open(szFileName, O_WRONLY | O_CREAT, 0644);
-		if(mFdJpgFile<0)
-		{
-			fprintf(stderr, "File Open Failure\n");
-			continue;
-		}
+		 //mFdJpgFile = open(szFileName, O_WRONLY | O_CREAT, 0644);
+		// if(mFdJpgFile<0)
+		// {
+		// 	fprintf(stderr, "File Open Failure\n");
+		// 	continue;
+		// }
 			
 		while(true)
 		{
@@ -390,7 +411,7 @@ void V4L2Device::MainProcessing(void)
 			}
 			if(ReadFrame()) break;
 		}
-		close(mFdJpgFile);
+		//close(mFdJpgFile);
 		fprintf(stderr, " %d ",  mnFrameCnt-nCnt);
 	}
 	fprintf(stderr, "\n");

@@ -20,13 +20,13 @@ void RPCamFileManager::Free(void)
 	
 }
 
-bool RPCamFileManager::PushData(JpgFileInfo& stJpgData)
+bool RPCamFileManager::PushData(ST_JPGINFO_PACKET& stJpgData)
 {
 	mqJpgData.push(stJpgData);
 	return true;
 }
 
-bool RPCamFileManager::PopFrontData(JpgFileInfo& stJpgData)
+bool RPCamFileManager::PopFrontData(ST_JPGINFO_PACKET& stJpgData)
 {
 	if(IsEmpty()) return false;
 

@@ -1,5 +1,6 @@
 
 #include <errno.h>
+#include <stdio.h>
 
 #include "RPCamSockManager.h"
 #include "RPCamFileManager.h"
@@ -85,7 +86,6 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 
 	mRPSockAddr.sin_family = AF_INET;
 	mRPSockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	//mRPSockAddr.sin_addr.s_addr = inet_addr ("100.100.105.99");
 	mRPSockAddr.sin_port = htons(DFT_SERVER_PORT);
 
 	if(bind(mRPSock, (struct sockaddr *)&mRPSockAddr, sizeof(mRPSockAddr)) == -1)
@@ -95,15 +95,17 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 		close(mRPSock);
 		return NULL;	
 	}
-	JpgFileInfo stJpgInfo;
-	while(true)
+	ST_JPGINFO_PACKET stJpgInfo;
+
+	// Listen Client .. 
+	if(listen(mRPSock, 5) == -1)
 	{
-		// Listen Client .. 
-		if(listen(mRPSock, 5) == -1)
-		{
-			perror("Listen : ");
-			fprintf(stderr, "Socket Listen Failure\n" );
-		}
+		perror("Listen : ");
+		fprintf(stderr, "Socket Listen Failure\n" );
+	}
+
+	while(true)
+	{		
 		mClntAddrSize = sizeof(mClntSockAddr);		
 		mClntSock= accept(mRPSock, (struct sockaddr *)&mClntSockAddr, &mClntAddrSize);
 
@@ -111,8 +113,7 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 		// Write Client
 		if(theFileMgr.PopFrontData(stJpgInfo))
 		{
-			write(mClntSock, &stJpgInfo, sizeof(stJpgInfo)+1);
-			free(stJpgInfo.pCamImagePtr);
+			send(mClntSock, (unsigned char *)&stJpgInfo, sizeof(stJpgInfo)+1, 0);
 			DBGTRC;
 		}		
 		sleep(1);

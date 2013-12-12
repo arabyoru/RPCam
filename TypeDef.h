@@ -20,4 +20,5 @@
 #define FILE_NAME_LEN			256
 #define FILE_PATH_LEN			256
 
+#define MAX_CLIENT_SIZE			8
 #define MAX_FILE_ARRAY_SIZE  	256
