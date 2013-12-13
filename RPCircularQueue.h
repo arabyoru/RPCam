@@ -49,7 +49,7 @@ public:
 	int GetSize(void)
 	{
 		if(mnFront <= mnRear) return mnRear - mnFront; // 전단 Index 가 후단 Index 보다 같거나 작을 경우
-		else return mnCapacity - mnFront + mnRear; // 후단 Index 가 
+		else return mnCapacity - (mnFront + mnRear);
 	};
 
 	bool IsEmpty(void)

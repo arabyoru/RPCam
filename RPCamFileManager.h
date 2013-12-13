@@ -6,14 +6,11 @@
 #include <unistd.h>
 #include <time.h>
 #include <iostream>
-#include <queue>
 
 #include "TypeDef.h"
 #include "RPPacket.h"
 #include "RPCircularQueue.h"
 
-
-typedef std::queue<ST_JPGINFO_PACKET> 		QJpgData;
 typedef class RPCircularQueue<ST_JPGINFO_PACKET, MAX_CQUEUE_SIZE>				RPCQueue;
 
 class RPCamFileManager
@@ -35,7 +32,6 @@ public:
 	bool IsEmpty(void) { return mcqJpgData.IsEmpty()?true:false; }
 
 private:
-	//QJpgData mqJpgData;
 	RPCQueue mcqJpgData;
 
 };
