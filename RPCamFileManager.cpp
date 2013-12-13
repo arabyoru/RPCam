@@ -22,42 +22,14 @@ void RPCamFileManager::Free(void)
 
 bool RPCamFileManager::PushData(ST_JPGINFO_PACKET& stJpgData)
 {
-	mqJpgData.push(stJpgData);
+	mcqJpgData.EnQueue(stJpgData);
 	return true;
 }
 
 bool RPCamFileManager::PopFrontData(ST_JPGINFO_PACKET& stJpgData)
 {
 	if(IsEmpty()) return false;
-
-	 stJpgData = mqJpgData.front();
-	 mqJpgData.pop();
+	 stJpgData = mcqJpgData.DeQueue();
 	 return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

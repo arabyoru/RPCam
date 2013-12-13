@@ -10,9 +10,11 @@
 
 #include "TypeDef.h"
 #include "RPPacket.h"
+#include "RPCircularQueue.h"
 
 
 typedef std::queue<ST_JPGINFO_PACKET> 		QJpgData;
+typedef class RPCircularQueue<ST_JPGINFO_PACKET, MAX_CQUEUE_SIZE>				RPCQueue;
 
 class RPCamFileManager
 {
@@ -29,9 +31,11 @@ public:
 
 	bool PushData(ST_JPGINFO_PACKET& stJpgData);
 	bool PopFrontData(ST_JPGINFO_PACKET& stJpgData);
-	int GetQueueSize(void) { return mqJpgData.size(); }
-	bool IsEmpty(void) { return mqJpgData.empty()?true:false; }
+	int GetQueueSize(void) { return mcqJpgData.GetSize(); }
+	bool IsEmpty(void) { return mcqJpgData.IsEmpty()?true:false; }
 
 private:
-	QJpgData mqJpgData;
+	//QJpgData mqJpgData;
+	RPCQueue mcqJpgData;
+
 };

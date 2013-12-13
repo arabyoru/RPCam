@@ -111,8 +111,10 @@ void* RPCamSockManager::ThreadRun(void *pArg)
 
 		if(mClntSock>=0) { mClientCnt++; }
 		// Write Client
+		
 		if(theFileMgr.PopFrontData(stJpgInfo))
 		{
+			printf("DeQueue Size : %d \n", theFileMgr.GetQueueSize());
 			send(mClntSock, (unsigned char *)&stJpgInfo, sizeof(stJpgInfo)+1, 0);
 			DBGTRC;
 		}		

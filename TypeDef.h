@@ -21,4 +21,4 @@
 #define FILE_PATH_LEN			256
 
 #define MAX_CLIENT_SIZE			8
-#define MAX_FILE_ARRAY_SIZE  	256
+#define MAX_CQUEUE_SIZE  		32

@@ -1,4 +1,3 @@
-
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
@@ -341,6 +340,7 @@ void V4L2Device::ProcessImage(const void *pFrame, size_t nLength)
 			//write(mFdJpgFile, pFrame, nLength);
 			stJpgInfo.nLen = nLength;
 			theFileMgr.PushData(stJpgInfo);	
+			printf("EnQueue Size : %d \n", theFileMgr.GetQueueSize());
 		}	
 
 		
